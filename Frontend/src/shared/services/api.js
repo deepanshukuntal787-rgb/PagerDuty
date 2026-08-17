@@ -1,0 +1,85 @@
+import axios from "axios";
+import { API_BASE_URL } from "./runtime-config";
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+});
+
+const refreshClient = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+});
+
+let isRefreshing = false;
+let pendingRequests = [];
+
+const resolvePendingRequests = (error) => {
+  pendingRequests.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve();
+    }
+  });
+
+  pendingRequests = [];
+};
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    const status = error.response?.status;
+    const requestUrl = originalRequest?.url || "";
+
+    const isAuthEndpoint = [
+      "/auth/login",
+      "/auth/register",
+      "/auth/refresh",
+      "/auth/logout",
+    ].some((path) => requestUrl.includes(path));
+
+    if (
+      status !== 401 ||
+      !originalRequest ||
+      originalRequest._retry ||
+      isAuthEndpoint
+    ) {
+      return Promise.reject(error);
+    }
+
+    originalRequest._retry = true;
+
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        pendingRequests.push({
+          resolve,
+          reject,
+        });
+      }).then(() => api(originalRequest));
+    }
+
+    isRefreshing = true;
+
+    try {
+      await refreshClient.post("/auth/refresh");
+      resolvePendingRequests();
+      return api(originalRequest);
+    } catch (refreshError) {
+      resolvePendingRequests(refreshError);
+      // Emit a global event so the app can handle logout/redirect
+      try {
+        window.dispatchEvent(new CustomEvent("auth:refreshFailed"));
+      } catch {
+        // ignore in non-browser environments
+      }
+
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
+  }
+);
+
+export default api;

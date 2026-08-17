@@ -1,0 +1,29 @@
+export const INCIDENT_STATUS = {
+    OPEN: "OPEN",
+    TRIAGED: "TRIAGED",
+    IN_PROGRESS: "IN_PROGRESS",
+    MONITORING: "MONITORING",
+    RESOLVED: "RESOLVED",
+    CLOSED: "CLOSED",
+};
+
+export const INCIDENT_SEVERITY = {
+    LOW: "LOW",
+    MEDIUM: "MEDIUM",
+    HIGH: "HIGH",
+    CRITICAL: "CRITICAL",
+};
+
+export const STATUS_TRANSITIONS = {
+    OPEN: ["TRIAGED"],
+
+    TRIAGED: ["IN_PROGRESS"],
+
+    IN_PROGRESS: ["MONITORING"],
+
+    MONITORING: ["RESOLVED"],
+
+    RESOLVED: ["CLOSED"],
+
+    CLOSED: [],
+};
