@@ -2,7 +2,7 @@ const normalizeBaseUrl = (value) =>
     value?.replace(/\/+$/, "") || null;
 
 const defaultApiBaseUrl =
-    "http://localhost:5000/api";
+    "http://localhost:5001/api";
 
 const configuredApiBaseUrl = normalizeBaseUrl(
     import.meta.env.VITE_API_BASE_URL
