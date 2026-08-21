@@ -129,7 +129,7 @@ Backend: `http://localhost:5000`
 
 The real-time operations dashboard provides live incident tracking, severity analysis, and monitoring insights.
 
-![SignalStack Dashboard](screenshorts/Screenshot 2026-08-21 at 11.22.18 AM.png.png)
+![SignalStack Dashboard](screenshorts/Screenshot 2026-08-21 at 11.22.18 AM.png)
 
 
 ## 🎯 Roadmap
